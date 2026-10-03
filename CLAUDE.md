@@ -165,6 +165,13 @@ cards use a masonry column layout so bullet count doesn't need to match across c
 one `experience` or `projects` `stack` array, or it will show with a zero count in the Skills
 section (still valid, just worth knowing).
 
+**Skill and stack icons** — every skill pill and stack tag renders `<SkillIcon name=…>` from
+`components/skill-icon.tsx`, looked up by the **exact** string in `lib/data.ts`. When you add a
+new skill or stack name, add it there too: to `BRANDS` (a `si…` logo from `simple-icons`) if the
+brand exists, otherwise to `GENERIC` (a descriptive lucide icon). Unmapped names fall back to a
+neutral box. Icons are single-colour (`currentColor`), never brand colours, so they follow the
+theme and the pill's selected and hover states.
+
 ## Now playing
 
 The footer strip shows current/last listening, read from **Last.fm** (tracks are scrobbled there

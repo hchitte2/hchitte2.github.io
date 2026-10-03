@@ -15,6 +15,7 @@ import {
 import { badgeVariants } from "@/components/ui/badge";
 import { Tile } from "@/components/ui/tile";
 import { Section } from "@/components/section";
+import { SkillIcon } from "@/components/skill-icon";
 import { skills, experience, projects } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
@@ -123,6 +124,7 @@ export function Skills({ subtitle }: { subtitle?: string }) {
                           : "border-transparent hover:border-accent/40 hover:text-accent"
                       )}
                     >
+                      <SkillIcon name={name} />
                       {name}
                       {count > 0 && (
                         <span

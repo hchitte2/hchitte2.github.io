@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Tile } from "@/components/ui/tile";
 import { Section } from "@/components/section";
+import { SkillIcon } from "@/components/skill-icon";
 import { RevealGrid, RevealItem } from "@/components/reveal";
 import { experience } from "@/lib/data";
 import { cn } from "@/lib/utils";
@@ -34,7 +35,8 @@ export function Experience({ subtitle }: { subtitle?: string }) {
               </ul>
               <div className="mt-auto flex flex-wrap gap-2 pt-6">
                 {job.stack.map((s) => (
-                  <Badge key={s} variant="outline">
+                  <Badge key={s} variant="outline" className="gap-1.5">
+                    <SkillIcon name={s} className="size-3" />
                     {s}
                   </Badge>
                 ))}

@@ -2,6 +2,7 @@ import { ArrowUpRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tile } from "@/components/ui/tile";
 import { Section } from "@/components/section";
+import { SkillIcon } from "@/components/skill-icon";
 import { RevealGrid, RevealItem } from "@/components/reveal";
 import { projects } from "@/lib/data";
 import { cn } from "@/lib/utils";
@@ -55,7 +56,10 @@ export function Projects({ subtitle }: { subtitle?: string }) {
               </ul>
               <div className="mt-auto flex flex-wrap gap-2 pt-6">
                 {p.stack.map((s) => (
-                  <Badge key={s}>{s}</Badge>
+                  <Badge key={s} className="gap-1.5">
+                    <SkillIcon name={s} className="size-3" />
+                    {s}
+                  </Badge>
                 ))}
               </div>
             </Tile>
