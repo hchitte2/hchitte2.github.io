@@ -170,17 +170,33 @@ section (still valid, just worth knowing).
 The footer strip shows current/last listening, read from **Last.fm** (tracks are scrobbled there
 from YouTube Music — there's no YouTube Music API involved).
 
-- Env vars: `LASTFM_API_KEY` and `LASTFM_USERNAME` in `.env.local`.
-- `app/api/now-playing/route.ts` is the **only** place the API key is used — it stays server-side
-  and is never exposed to the client. The route revalidates every 30s and sends matching
-  `Cache-Control` headers; `components/now-playing.tsx` polls it every 30s, pausing while the tab
-  is hidden.
+- Env vars: `LASTFM_API_KEY` and `LASTFM_USERNAME` — in `.env.local` locally, and as Actions
+  secrets on the GitHub repo for deploys.
+- `app/api/now-playing.json/route.ts` is the **only** place the API key is used. Because the site
+  is a static export, this route runs **once per build** (`dynamic = "force-static"`, fetch with
+  `cache: "force-cache"` — `no-store` makes the build bail out) and is written to
+  `out/api/now-playing.json`. The key never reaches the browser.
+- Freshness comes from the deploy workflow rebuilding every 30 minutes, not from the route. Since
+  a snapshot can be that stale, the route always reports `isPlaying: false`; a track caught
+  mid-play is recorded as last played at build time. The equalizer branch in the component is
+  kept for a future live backend but doesn't render on Pages.
+- **Never log errors in this route.** Fetch errors embed the request URL, which contains the API
+  key, and Actions logs on a public repo are public.
 - The route never throws: missing env vars, a failed request, or an empty response all return
-  `{ isPlaying: false, title: null }` with status 200, and the component **renders nothing** when
-  `title` is null. Album art is dropped unless it's on a `*.freetls.fastly.net` host, since
-  `next/image` errors on hosts missing from `remotePatterns` in `next.config.ts`.
-- The playing indicator is an animated three-bar equalizer that falls back to a static `Music`
-  icon under `prefers-reduced-motion`.
+  `{ isPlaying: false, title: null }`, and `components/now-playing.tsx` **renders nothing** when
+  `title` is null. Album art is dropped unless it's on a `*.freetls.fastly.net` host.
+
+## Hosting
+
+Deployed to **GitHub Pages** at https://hchitte2.github.io from the `hchitte2/hchitte2.github.io`
+repo. `.github/workflows/deploy.yml` builds and deploys on every push to `main`, every 30 minutes
+(for the Last.fm snapshot), and on manual dispatch.
+
+- `next.config.ts` sets `output: "export"`, so everything must be statically renderable: no
+  per-request route handlers, no server actions, no middleware, no ISR `revalidate`.
+- `images.unoptimized: true` is required — there's no image optimizer on a static host.
+- It's a user site (repo named `<user>.github.io`), so it's served from the domain root and needs
+  no `basePath`. Renaming the repo would break every asset path until `basePath` is added.
 
 ## Before finishing any task
 
