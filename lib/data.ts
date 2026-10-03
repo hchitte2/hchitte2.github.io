@@ -1,18 +1,12 @@
 export const profile = {
   name: "Hemakshi Chitte",
   headline: "Software Engineer",
-  credential: "M.S. Computer Science · Binghamton University '25",
   intro:
     "I've spent 3+ years building and shipping production web applications, focused on React and TypeScript, with growing expertise in AI development and backend APIs.",
   email: "hemakshi.chitte@yahoo.com",
   github: "https://github.com/hchitte2",
   linkedin: "https://www.linkedin.com/in/hemakshi-chitte-485674205/",
   resume: "/Hemakshi_Chitte_Resume (1).pdf",
-  stats: [
-    { value: "3+ yrs", label: "Shipping production web apps" },
-    { value: "M.S. CS", label: "Binghamton University '25" },
-    { value: "Open", label: "To full-stack and AI roles" },
-  ],
 };
 
 export const experience = [

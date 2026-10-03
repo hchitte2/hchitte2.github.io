@@ -1,36 +1,29 @@
-import { Badge } from "@/components/ui/badge";
-import { Tile } from "@/components/ui/tile";
 import { Section } from "@/components/section";
-import { RevealGrid, RevealItem } from "@/components/reveal";
 import { education } from "@/lib/data";
 
-export function Education({ subtitle }: { subtitle?: string }) {
+export function Education() {
   return (
-    <Section id="education" title="Education" subtitle={subtitle}>
-      <RevealGrid className="grid gap-4 md:grid-cols-2">
+    <Section id="education" title="Education">
+      <div className="space-y-5">
         {education.map((edu) => (
-          <RevealItem key={edu.degree}>
-            <Tile className="flex h-full flex-col">
-              <p className="text-xs tabular-nums text-muted-foreground">{edu.period}</p>
-              <h3 className="mt-2 text-base font-semibold md:text-lg">{edu.degree}</h3>
-              <p className="mt-1 text-sm font-medium text-accent">{edu.school}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{edu.location}</p>
-              {edu.courses.length > 0 && (
-                <div className="mt-auto pt-6">
-                  <p className="mb-2 text-xs text-muted-foreground">Relevant coursework</p>
-                  <div className="flex flex-wrap gap-2">
-                    {edu.courses.map((course) => (
-                      <Badge key={course} variant="outline">
-                        {course}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </Tile>
-          </RevealItem>
+          <article key={edu.degree}>
+            <div className="flex flex-col gap-x-6 gap-y-0.5 sm:flex-row sm:items-baseline sm:justify-between">
+              <h3 className="text-sm font-medium">{edu.degree}</h3>
+              <p className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground">
+                {edu.period}
+              </p>
+            </div>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {edu.school} · {edu.location}
+            </p>
+            {edu.courses.length > 0 && (
+              <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+                <span className="text-foreground/70">Coursework:</span> {edu.courses.join(", ")}
+              </p>
+            )}
+          </article>
         ))}
-      </RevealGrid>
+      </div>
     </Section>
   );
 }

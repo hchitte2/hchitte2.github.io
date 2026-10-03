@@ -6,7 +6,8 @@
 - React 19
 - TypeScript, strict mode
 - Tailwind v4 via `@tailwindcss/postcss` (no `tailwind.config.js` — theme lives in `app/globals.css`)
-- shadcn-style primitives in `components/ui/` (Button, Badge, Card)
+- shadcn-style primitives in `components/ui/` (Button, Badge, Card — currently unused by the
+  page, kept for future use)
 - Framer Motion for animation
 - lucide-react for icons
 - Geist font (sans + mono), loaded via `next/font` in `app/layout.tsx`
@@ -41,100 +42,82 @@ Components use only the Tailwind classes mapped from these tokens: `bg-backgroun
 `bg-accent-soft`, `bg-muted`. **No raw hex values and no arbitrary color classes (`bg-[#...]`) in
 components.** Opacity modifiers on tokens (`border-accent/40`, `bg-accent-soft/25`) are fine.
 
-`--background` is the page ground; `--surface` is what tiles/cards sit on, so they read as raised
-without any shadow. Never put a tile on `bg-background` — that's what made the old design look
-flat.
-
-**Accent budget.** The accent is load-bearing, not decorative: section heading dot, company /
-school names, bullet en-dashes, stat values, group icons, selected skill pill (`bg-accent` with
-`text-background`), the active nav chip, and hover states on interactive tiles. Body copy stays
-`text-muted-foreground`.
+`--background` is the page ground. `--surface` is defined but the current single-column layout
+doesn't use raised surfaces.
 
 ## Type scale (as used on the page)
 
 | Element | Classes |
 |---|---|
-| Hero name (h1) | `text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight` |
-| Hero intro | `text-base md:text-lg leading-relaxed text-muted-foreground max-w-xl` |
-| Section heading (h2) | `text-2xl md:text-3xl font-semibold tracking-tight` |
-| Tile title | `text-base md:text-lg font-semibold` |
-| Body / bullets | `text-[15px] leading-relaxed text-muted-foreground` |
-| Meta / period / small | `text-xs` (add `tabular-nums` for dates) |
+| Name (h1) | `text-2xl font-semibold tracking-tight` |
+| Role line | `text-sm text-muted-foreground` |
+| Intro | `text-base md:text-[17px] leading-relaxed text-muted-foreground max-w-3xl` |
+| Section heading (h2) | `text-lg font-semibold tracking-tight` + `border-b border-border pb-2.5` |
+| Entry title (company, project) | `text-base font-medium` |
+| Role / degree | `text-sm font-medium` |
+| Bullets | `text-sm leading-relaxed text-muted-foreground` |
+| Dates | `font-mono text-xs tabular-nums text-muted-foreground`, right-aligned |
+| Meta, stack line, skill chips | `text-xs` |
 
-Layout: container is `max-w-5xl` with `px-6 md:px-8`, shared by `<main>`, `<footer>`, and the nav
-bar so everything aligns. Section vertical rhythm is `py-16 md:py-20` — set once in
-`components/section.tsx` and not overridden per-section; don't add extra top/bottom margin to an
-individual section's wrapper.
+## Layout
 
-## Bento layout
+The page is a single-column, resume-style document modelled on rsanandres.com: no cards, no
+tiles, no grids of boxes. Structure, top to bottom:
 
-Every section body is a bento grid of tiles, not a flat list:
+1. **Nav** — name on the left; plain text links (Experience, Projects, Skills, Education, Contact)
+   and the theme toggle on the right.
+2. **Hero** — name with small GitHub / LinkedIn / résumé icon links beside it, role line, intro.
+3. **Experience** — per job: company, location, then role (left) and mono date (right), dotted
+   bullets, stack line.
+4. **Projects** — per project: name with a GitHub icon link (only when `href` exists), dotted
+   bullets, stack line.
+5. **Skills** — a `sm:grid-cols-[9rem_1fr]` grid: muted category label left, chips right.
+6. **Education** — degree (left) and mono date (right), school · location, a coursework line.
+7. **Footer** — Now playing strip, then copyright left and Email / GitHub / LinkedIn right. There
+   is no Contact section; the nav's Contact link is a `mailto:`.
 
-- Grid is `grid gap-4 md:grid-cols-2`; the first/featured item takes `md:col-span-2`
-  (Experience's most recent job, the first project, the contact email).
-- Tiles are `<Tile>` from `components/ui/tile.tsx` — `rounded-lg border border-border bg-surface
-  p-6 md:p-7`. Pass `interactive` for linked tiles to get the hover treatment
-  (`hover:border-accent/50 hover:bg-accent-soft/25`).
-- Tiles in a row stretch to equal height, so give each one `flex h-full flex-col` and push the
-  badge row to the bottom with `mt-auto`. That's what keeps uneven bullet counts from leaving
-  ragged dead space.
-- Mobile is always a single column (`grid-cols-1` by default, `md:` adds the second).
-
-### `<Section>` and the subtitle prop
-
-`components/section.tsx` renders `title` (`text-xl font-semibold tracking-tight`), then an
-optional `subtitle` (`text-sm text-muted-foreground`, `mt-1`) directly under it, then a `mt-4 mb-8
-border-t border-border` divider, then `children`. Every section (`Experience`, `Education`,
-`Projects`, `Skills`, `Contact`) accepts its own optional `subtitle` prop and forwards it to
-`<Section>` — the actual subtitle strings are passed in from `app/page.tsx`, not hardcoded in the
-section file, same as the "no hardcoded copy" rule above.
-
-### The single left edge rule
-
-The left edge of every section's heading, its subtitle, its divider, and the left border of every
-tile land on the same x-position — the container's inner edge (after `px-6`/`px-8`). Nothing in a
-section body gets its own extra left padding or negative margin; indentation happens *inside* a
-tile (via the tile's own padding), never outside it.
-
-Bullets use `relative pl-4 before:absolute before:left-0 before:text-accent before:content-['–']`
-so the en-dash sits on the text block's own left edge rather than floating in a gutter.
+- Container is `max-w-4xl` with `px-6 md:px-8`, shared by nav, `<main>`, and footer.
+- Sections use `<Section>` (`components/section.tsx`) for the heading + rule and `py-8 md:py-10`
+  rhythm; don't add per-section margins. There is no subtitle prop.
+- Everything sits on one left edge: the container's inner edge. Nothing gets extra left padding
+  except bullet text, which is indented past its dot.
+- Experience and Projects share `<Bullets>` and `<StackLine>` from `components/entry.tsx` so the two
+  sections stay identical; change them there, not per section.
+- Mobile is the same single column; right-aligned dates drop under the title via `flex-wrap`, and
+  the nav links scroll horizontally (`.no-scrollbar`).
 
 ## Component rules
 
-- Use `Button`, `Badge`, `Tile`, `Card` from `components/ui/` instead of ad-hoc `<div>`s styled
-  inline. `Tile` is the bento surface and the default container for section content; `Card` is the
-  older flat primitive, kept for anything that shouldn't read as a bento tile.
-- Badge variants: `default` (bg-muted — project stack tags), `outline` (border only — experience
-  and coursework tags), `accent` (bg-accent-soft, text-accent — an explicit "active" state).
-- Border radius always comes from `--radius` (Tailwind's `rounded-*` scale, which is themed off
-  it) — never a one-off radius value.
-- No `box-shadow` anywhere. No gradients.
-- Icons are `lucide-react`, `size-4` inline next to text, `size-5` for section-level icons.
-- Badge rows all use `gap-2`. Static tags use the default Badge size (`px-2.5 py-0.5 text-xs`);
-  the Skills pills are interactive buttons so they get a larger tap target
-  (`px-3 py-1 text-[13px]`).
-- Nav (`components/nav.tsx` + `components/nav-links.tsx`): a compact tab bar — links sit in a
-  `rounded-full border border-border px-1 py-1` container, each link is a `rounded-full px-3 py-1
-  text-sm` chip. `NavLinks` is the only client component in the nav; it uses an
-  `IntersectionObserver` (with a `-45% 0px -50% 0px` root margin, so it fires near the vertical
-  center of the viewport) to track which section is current and gives that chip's link `bg-muted
-  text-foreground`. On mobile the chip row scrolls horizontally (`overflow-x-auto`) with the
-  scrollbar hidden via the `.no-scrollbar` utility in `app/globals.css`.
+- Bullets are a small dot (`before:size-1.5 before:rounded-full before:bg-muted-foreground/30`),
+  not dashes.
+- Skill chips are `rounded-md bg-muted px-2 py-1 text-xs` buttons with a logo, the usage count, and
+  a selected state of `bg-accent text-background`; clicking one opens its "used in" list under that
+  row.
+- Border radius always comes from `--radius` (Tailwind's `rounded-*` scale). No `box-shadow`, no
+  gradients.
+- Icons are `lucide-react` (or `simple-icons` logos via `<SkillIcon>`), `size-4` for links next to
+  text and `size-3` inside chips and stack lines.
+- The accent is used sparingly: selected skill chip, the "used in" list's rule and icons. Text
+  stays foreground / muted-foreground.
+- Nav (`components/nav.tsx` + `components/nav-links.tsx`): `NavLinks` uses an
+  `IntersectionObserver` (`-45% 0px -50% 0px` root margin) to colour the current section's link
+  `text-foreground`; the rest are `text-muted-foreground`.
+
+## Dark mode
+
+`components/theme-toggle.tsx` toggles the `dark` class on `<html>` and saves `"light"` / `"dark"`
+to `localStorage.theme`. An inline script in `app/layout.tsx` applies the saved choice (or the
+system preference if nothing is saved) **before first paint**, so there's no light flash; that's
+why `<html>` has `suppressHydrationWarning`. The `.dark` token values in `app/globals.css` are the
+whole dark theme — use token classes and it works in both modes.
 
 ## Motion rules
 
-- Bento tiles animate through `components/reveal.tsx`: wrap the grid in `<RevealGrid>` and each
-  tile in `<RevealItem>`. Tiles spring in (opacity + 14px rise, `stiffness: 260, damping: 26`)
-  with a `0.06s` stagger. `<RevealGrid trigger="load">` fires immediately (hero); the default
-  `"scroll"` waits for `whileInView` with `once: true`.
-- Section headers use the shared `<FadeIn>` wrapper (`components/fade-in.tsx`): opacity + 6px
-  rise, `whileInView`, `once: true`. `<Section>` already applies it — don't nest another.
-- Both wrappers already handle `useReducedMotion` (they skip the initial state entirely), so
-  prefer them over hand-rolling a new `motion.div`.
-- Any new animation must call `useReducedMotion()` and no-op (or reduce to an instant/0ms
-  transition) when it's true.
-- No hover translate or scale, anywhere. Hover states are color/border/background only.
-- Transitions run 150–200ms.
+- Sections fade in through `<FadeIn>` (`components/fade-in.tsx`: opacity + 6px rise,
+  `whileInView`, `once: true`), applied once inside `<Section>` and the hero. Don't nest another.
+- `<FadeIn>` already handles `useReducedMotion`. Any new animation must call `useReducedMotion()`
+  and no-op when it's true.
+- No hover translate or scale. Hover states change color only, over 150ms.
 
 ## Copy rules
 
@@ -152,13 +135,13 @@ section's usage counts pick it up.
 
 **Add a degree** — append to `education`: `degree`, `school`, `location`, `period`, `courses`
 (string array — pass `[]` if there's nothing relevant to list; `components/sections/education.tsx`
-renders the "Relevant coursework" block only when it's non-empty).
+renders the coursework line only when it's non-empty).
 
 **Add a project** — append to `projects`: `name`, `points` (string array, 2–3 bullets, verb-first,
 one line each where possible), `stack`, and optionally `href`. `href` is optional — if the project
 has no public link, omit the key entirely (don't set it to `""`).
-`components/sections/projects.tsx` only renders the title as a link when `href` is present, and
-cards use a masonry column layout so bullet count doesn't need to match across cards.
+`components/sections/projects.tsx` only shows the GitHub icon link when `href` is present; omit
+`href` for projects that shouldn't link anywhere.
 
 **Add a skill** — add the string to the right group in `skills` (`Languages`, `Frontend`,
 `Backend & DevOps`, `AI Development`, or `Cloud & Tools`). Also add a matching string to at least
@@ -210,8 +193,7 @@ repo. `.github/workflows/deploy.yml` builds and deploys on every push to `main`,
 - [ ] `npm run build` passes with zero type errors
 - [ ] No hardcoded copy added to a component under `components/sections/` — it's in `lib/data.ts`
 - [ ] No raw hex or arbitrary color classes — only the mapped token classes
-- [ ] Mobile layout (< `md`) is still single-column, and no bento tile overflows horizontally
-- [ ] New tiles use `<Tile>` on `bg-surface`, with `flex h-full flex-col` + `mt-auto` on the
-      bottom row so equal-height rows don't leave dead space
+- [ ] At 375px wide the page doesn't scroll sideways
+- [ ] Checked in both light and dark mode (toggle in the nav)
 - [ ] Keyboard focus is visible on any new interactive element (relies on the global
       `:focus-visible` outline in `app/globals.css` — don't override it with `outline-none`)

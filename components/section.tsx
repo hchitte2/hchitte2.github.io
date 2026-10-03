@@ -4,28 +4,18 @@ import { FadeIn } from "@/components/fade-in";
 interface SectionProps {
   id: string;
   title: string;
-  subtitle?: string;
   children: ReactNode;
 }
 
-export function Section({ id, title, subtitle, children }: SectionProps) {
+export function Section({ id, title, children }: SectionProps) {
   return (
-    <section id={id} className="scroll-mt-24 py-16 md:py-20">
+    <section id={id} className="scroll-mt-20 py-8 md:py-10">
       <FadeIn>
-        <div className="mb-8">
-          <div className="flex items-center gap-2.5">
-            <span aria-hidden="true" className="size-1.5 rounded-full bg-accent" />
-            <h2 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
-              {title}
-            </h2>
-          </div>
-          {subtitle && (
-            <p className="mt-2 text-sm text-muted-foreground md:text-base">{subtitle}</p>
-          )}
-          <div className="mt-5 border-t border-border" />
-        </div>
+        <h2 className="border-b border-border pb-2.5 text-lg font-semibold tracking-tight">
+          {title}
+        </h2>
+        <div className="mt-5">{children}</div>
       </FadeIn>
-      {children}
     </section>
   );
 }

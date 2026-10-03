@@ -8,7 +8,9 @@ interface NavLink {
   label: string;
 }
 
-export function NavLinks({ links }: { links: NavLink[] }) {
+const linkClass = "shrink-0 whitespace-nowrap px-2 py-1 text-sm transition-colors duration-150";
+
+export function NavLinks({ links, contactHref }: { links: NavLink[]; contactHref: string }) {
   const [activeId, setActiveId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -23,9 +25,7 @@ export function NavLinks({ links }: { links: NavLink[] }) {
         const visible = entries
           .filter((entry) => entry.isIntersecting)
           .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visible[0]) {
-          setActiveId(visible[0].target.id);
-        }
+        if (visible[0]) setActiveId(visible[0].target.id);
       },
       { rootMargin: "-45% 0px -50% 0px", threshold: 0 }
     );
@@ -35,26 +35,24 @@ export function NavLinks({ links }: { links: NavLink[] }) {
   }, [links]);
 
   return (
-    <nav className="no-scrollbar min-w-0 overflow-x-auto rounded-full border border-border px-1 py-1">
-      <div className="flex w-max">
-        {links.map((l) => {
-          const isActive = activeId === l.href.slice(1);
-          return (
-            <a
-              key={l.href}
-              href={l.href}
-              className={cn(
-                "shrink-0 whitespace-nowrap rounded-full px-3 py-1 text-sm transition-colors",
-                isActive
-                  ? "bg-accent-soft font-medium text-accent"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {l.label}
-            </a>
-          );
-        })}
-      </div>
+    <nav className="no-scrollbar flex min-w-0 overflow-x-auto">
+      {links.map((l) => (
+        <a
+          key={l.href}
+          href={l.href}
+          className={cn(
+            linkClass,
+            activeId === l.href.slice(1)
+              ? "text-foreground"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          {l.label}
+        </a>
+      ))}
+      <a href={contactHref} className={cn(linkClass, "text-muted-foreground hover:text-foreground")}>
+        Contact
+      </a>
     </nav>
   );
 }
