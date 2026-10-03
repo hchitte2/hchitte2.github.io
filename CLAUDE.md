@@ -188,6 +188,21 @@ repo. `.github/workflows/deploy.yml` builds and deploys on every push to `main`,
 - It's a user site (repo named `<user>.github.io`), so it's served from the domain root and needs
   no `basePath`. Renaming the repo would break every asset path until `basePath` is added.
 
+## Versions
+
+`v1.0.0` (git tag + GitHub release "v1.0.0 — Resume-style single column") is the known-good
+baseline: the single-column, rsanandres.com-style layout with dark mode, skill logos, and the
+Last.fm footer. It is what's live on https://hchitte2.github.io.
+
+- **New themes go on a branch** (e.g. `git switch -c theme/<name>`), never straight onto `main`.
+  `main` deploys to the live site on every push, so experimenting there would publish a
+  half-finished design.
+- **To abandon a theme:** delete the branch. `main` and the live site were never touched.
+- **To restore v1 after a theme was merged:** `git switch main && git revert --no-edit v1.0.0..HEAD
+  && git push`. That adds commits that undo everything since v1 and redeploys it, without
+  rewriting history. Don't `git reset --hard` + force-push `main`.
+- **To just look at v1:** `git switch --detach v1.0.0`, or browse the tag on GitHub.
+
 ## Before finishing any task
 
 - [ ] `npm run build` passes with zero type errors
